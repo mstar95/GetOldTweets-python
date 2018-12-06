@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
 import sys,getopt,datetime,codecs
+from pymongo import MongoClient
 if sys.version_info[0] < 3:
     import got
 else:
     import got3 as got
+
+def createMongo():
+	client = MongoClient('localhost', 27017)
+	db = client.tweets_db
+	collection = db.tweets
+	def save(tweets):
+		print(tweets)
+		collection.insert(tweets)
+	
+	return save
+
 
 def main(argv):
 
@@ -67,7 +79,9 @@ def main(argv):
 			outputFile.flush()
 			print('More %d saved on file...\n' % len(tweets))
 
-		got.manager.TweetManager.getTweets(tweetCriteria, receiveBuffer)
+		res = createMongo()
+
+		got.manager.TweetManager.getTweets(tweetCriteria, res)
 
 	except arg:
 		print('Arguments parser error, try -h' + arg)
@@ -77,3 +91,5 @@ def main(argv):
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
+
+
