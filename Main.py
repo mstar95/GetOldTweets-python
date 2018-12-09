@@ -15,11 +15,11 @@ def dateToString(date):
 
 
 def main():
-    # logging.basicConfig(filename='out.log', format='%(asctime)s %(message)s')
+    logging.basicConfig(filename='out.log', format='%(asctime)s %(message)s')
     db = createMongo()
 
     dateSince = datetime.datetime(2016, 1, 1)
-    endDate = datetime.datetime(2016, 1, 10)
+    endDate = datetime.datetime(2018, 1, 1)
     while dateSince.date() <= endDate.date():
         logging.warning('Get from : ' + str(dateSince))
         dateUntil = dateSince + datetime.timedelta(days=1)
