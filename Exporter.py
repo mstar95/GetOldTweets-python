@@ -1,24 +1,16 @@
 # -*- coding: utf-8 -*-
 import sys,getopt,datetime,codecs
-from pymongo import MongoClient
 if sys.version_info[0] < 3:
     import got
 else:
     import got3 as got
 
-def createMongo():
-	client = MongoClient('localhost', 27017)
-	db = client.tweets_db
-	collection = db.tweets
-	def save(tweets):
-		print(tweets)
-		collection.insert(tweets)
-	
-	return save
-
+from mongo import createMongo, mongoSaver
+import datetime
 
 def main(argv):
-
+	x = datetime.datetime.now()
+	print(x)
 	if len(argv) == 0:
 		print('You must pass some parameters. Use \"-h\" to help.')
 		return
@@ -30,11 +22,13 @@ def main(argv):
 
 		return
 
+	db = createMongo()
+
 	try:
 		opts, args = getopt.getopt(argv, "", ("username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
 
 		tweetCriteria = got.manager.TweetCriteria()
-		outputFileName = "output_got.csv"
+	#	outputFileName = "output_got.csv"
 
 		for opt,arg in opts:
 			if opt == '--username':
@@ -67,27 +61,17 @@ def main(argv):
 			elif opt == '--output':
 				outputFileName = arg
 				
-		outputFile = codecs.open(outputFileName, "w+", "utf-8")
-
-		outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-
 		print('Searching...\n')
 
-		def receiveBuffer(tweets):
-			for t in tweets:
-				outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink)))
-			outputFile.flush()
-			print('More %d saved on file...\n' % len(tweets))
-
-		res = createMongo()
-
-		got.manager.TweetManager.getTweets(tweetCriteria, res)
+		res = mongoSaver(db)
+		res = None
+		xd = got.manager.TweetManager.getTweets(tweetCriteria, res)
+		print(len(xd))
 
 	except arg:
 		print('Arguments parser error, try -h' + arg)
 	finally:
-		outputFile.close()
-		print('Done. Output file generated "%s".' % outputFileName)
+		print('Done.')
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
