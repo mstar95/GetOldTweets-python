@@ -22,6 +22,6 @@ def mongoSaver(collection):
     def save(tweets):
 
         tweets = map(toJson, tweets)
-        #collection.insert_many(tweets)
+        collection.insert_many(tweets)
 
     return save
